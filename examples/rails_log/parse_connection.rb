@@ -10,7 +10,7 @@ class ParseConnection < Rodimus::Step
       parse_new_connection(row)
     elsif row =~ /^Completed/
       parse_end_connection(row)
-      outgoing.puts(current_event.to_json)
+      outgoing[-1].puts(current_event.to_json)
     end
   end
 

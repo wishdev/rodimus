@@ -19,7 +19,7 @@ end
 
 class FormattedText < Rodimus::Step
   def before_run_set_stdout
-    @outgoing = STDOUT.dup
+    set_outgoing STDOUT.dup
   end
 
   def process_row(row)

@@ -50,9 +50,7 @@ module Rodimus
           return
         else
           read, write = IO.pipe
-          # We can have multiple outgoing so we use set to ensure proper
-          # application of the writer
-          first.set_outgoing(write)
+          first.add_outgoing(write)
 
           second.incoming = read
           second

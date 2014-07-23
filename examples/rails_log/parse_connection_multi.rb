@@ -1,6 +1,6 @@
 require 'json'
 
-class ParseConnection < Rodimus::MultiOutputStep
+class ParseConnection < Rodimus::Step
   attr_reader :current_event
 
   def initialize(*verbs)
