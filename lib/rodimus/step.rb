@@ -15,11 +15,15 @@ module Rodimus
     # This is initialized by the Transformation when the step begins to run.
     attr_accessor :shared_data
 
+    # The class used for managing the actual row data
+    attr_writer :row_klass
+
     def initialize(*args)
       observers << self
       observers << Benchmark.new if Rodimus.configuration.benchmarking
       @outgoing = []
       @outgoing_slot = -1
+      @row_klass = Row.dup
     end
 
     def close_descriptors
@@ -28,33 +32,33 @@ module Rodimus
       end
     end
 
-    # Override this for custom cleanup functionality.
-    def finalize; end
-
-    # Override this for custom output handling functionality per-row.
-    def handle_output(transformed_row)
-      [ @outgoing_slot ].flatten.each { |outgoing_slot|
-        outgoing[outgoing_slot].puts(transformed_row)
-      }
+    # Override this for custom transformation functionality
+    def process_row
+      @row.output = @row.data
     end
 
-    # Override this for custom transformation functionality
-    def process_row(row)
-      row.to_s
+    # Override this for custom output handling functionality per-row.
+    def output_row
+      if @row.output
+        output = @row.format_output(@row.output)
+        [ @row.outgoing_slot ].flatten.each { |outgoing_slot|
+          outgoing[outgoing_slot].puts(output)
+        }
+      end
     end
 
     def run
       notify(self, :before_run)
       @row_count = 1
       incoming.each do |row|
+        @row = @row_klass.new(row)
         notify(self, :before_row)
-        transformed_row = process_row(row)
-        handle_output(transformed_row)
+        process_row
+        output_row
         Rodimus.logger.info(self) { "#{@row_count} rows processed" } if @row_count % 50000 == 0
         @row_count += 1
         notify(self, :after_row)
       end
-      finalize
       notify(self, :after_run)
     ensure
       close_descriptors
@@ -66,6 +70,15 @@ module Rodimus
 
     def set_outgoing(outgoing)
       @outgoing = [ outgoing ]
+    end
+
+    # Return Row unless otherwise defined
+    def set_row_klass(row_klass)
+      @row_klass = row_klass.dup
+    end
+
+    def set_formatter(formatter)
+      @row_klass.set_formatter formatter
     end
 
     def to_s

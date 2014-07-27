@@ -16,7 +16,7 @@ class FileOutput < Rodimus::Step
     puts "\nData written to #{outgoing[-1].path}\n\n"
   end
 
-  def process_row(row)
-    JSON.parse(row).values
+  def process_row
+    @row.output = @row.data.values
   end
 end

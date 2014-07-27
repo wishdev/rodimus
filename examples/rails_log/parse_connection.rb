@@ -1,16 +1,12 @@
-require 'json'
-
 class ParseConnection < Rodimus::Step
   attr_reader :current_event
 
-  def handle_output(row); nil; end
-
-  def process_row(row)
-    if row =~ /^Started/
-      parse_new_connection(row)
-    elsif row =~ /^Completed/
-      parse_end_connection(row)
-      outgoing[-1].puts(current_event.to_json)
+  def process_row
+    if @row.input =~ /^Started/
+      parse_new_connection(@row.input)
+    elsif @row.input =~ /^Completed/
+      parse_end_connection(@row.input)
+      @row.output = current_event
     end
   end
 
@@ -30,4 +26,3 @@ class ParseConnection < Rodimus::Step
     current_event[:response] = match_data[1]
   end
 end
-

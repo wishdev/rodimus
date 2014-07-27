@@ -7,12 +7,15 @@ log = File.expand_path('../rails_example.log', __FILE__)
 t = Rodimus::Transformation.new
 step1 = LogInput.new(log)
 step2 = ParseConnection.new('GET', 'POST', 'DEFAULT')
-step2a_1 = FileOutput.new('GET')
-step2b_1 = FileOutput.new('POST')
-step2c_1 = FileOutput.new('DEFAULT')
+step2.set_formatter(Rodimus::Formatter::JsonOut)
+outputs = ['GET', 'POST', 'DEFAULT'].map { |verb|
+  step = FileOutput.new(verb)
+  step.set_formatter(Rodimus::Formatter::JsonIn)
+  step
+}
 t.steps << step1
 t.steps << step2
-t.steps << [[step2a_1], [step2b_1], [step2c_1]]
+t.steps << outputs
 t.run
 
 puts "Transformation complete!"

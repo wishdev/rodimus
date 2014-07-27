@@ -3,9 +3,12 @@ require 'rodimus/observable'
 require 'rodimus/observing'
 require 'rodimus/benchmark'
 require 'rodimus/runtime_logging'
+require 'rodimus/formatter'
+require 'rodimus/row'
 require 'rodimus/step'
 require 'rodimus/transformation'
 require 'rodimus/version'
+require 'ap'
 
 module Rodimus
   $SAFE = 1 # Because we're using DRb
